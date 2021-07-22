@@ -1,62 +1,294 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400"></a></p>
+# Laravel Todolist
 
-<p align="center">
-<a href="https://travis-ci.org/laravel/framework"><img src="https://travis-ci.org/laravel/framework.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Laravel Todolist 是一個利用 Laravel 特性所開發的一系列極簡 API，僅包含一個 Todolist 必要的最小功能。
 
-## About Laravel
+## 目錄
+1. [環境要求](#環境要求)
+2. [環境安裝](#環境安裝)
+3. [接口說明](#接口說明)
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## 環境要求
+1. PHP >= 7.4
+2. Laravel >= 8
+3. Composer
+4. Docker
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## 環境安裝
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+### 使用 Laradock 安裝環境
 
-## Learning Laravel
+1. 進入 laradock 目錄
+2. 複製並配置 .env 檔案
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+```
+cp .env.example .env
+```
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains over 1500 video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+3. 使用 docker 建立環境
+```
+docker-compose up -d nginx mysql workspace
+```
 
-## Laravel Sponsors
+4. 訪問 [http://localhost](http://localhost) 即可查看應用
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the Laravel [Patreon page](https://patreon.com/taylorotwell).
+### 準備項目環境
 
-### Premium Partners
+1. 進入專案目錄
+2. 複製並配置 .env 檔案
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Cubet Techno Labs](https://cubettech.com)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[Many](https://www.many.co.uk)**
-- **[Webdock, Fast VPS Hosting](https://www.webdock.io/en)**
-- **[DevSquad](https://devsquad.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[OP.GG](https://op.gg)**
+```
+cp .env.example .env
+```
 
-## Contributing
+3. 安裝 composer 依賴
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+```
+composer install
+```
 
-## Code of Conduct
+4. 執行數據庫遷移，建立數據表
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+```
+php artisan migrate
+```
 
-## Security Vulnerabilities
+5. （可選）執行數據填充，創建假數據
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+```
+php artisan db:seed
+```
 
-## License
+## 接口說明
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+部分接口需經過安全令牌驗證才可調用，於下方接口名前方以 🔒 標示
+安全令牌傳送方式需夾帶於請求 Header 中，詳見如下：
+
+```
+...
+Authorization: Bearer {token}
+...
+```
+
+### 用戶授權
+#### 登入
+
+> POST /api/auth/login
+
+1. 請求參數
+
+| 參數名 | 必填 |
+| ------ | ---- |
+| id     |      |
+
+2. 返回參數
+
+```
+{
+    "access_token": "xxx",
+    "token_type": "bearer",
+    "expires_in": 3600
+}
+```
+
+#### 🔒 登出
+
+> POST /api/auth/logout
+
+2. 返回參數
+
+```
+{
+    "message": "Successfully logged out"
+}
+```
+
+#### 🔒 刷新 JWT 令牌
+
+> POST /api/auth/refresh
+
+2. 返回參數
+
+```
+{
+    "access_token": "xxx",
+    "token_type": "bearer",
+    "expires_in": 3600
+}
+```
+
+#### 🔒 檢查 JWT 令牌是否有效
+
+> POST /api/auth/me
+
+2. 返回參數
+
+```
+{
+    "id": 1,
+    "created_at": "2021-07-22T07:53:55.000000Z",
+    "updated_at": "2021-07-22T07:53:55.000000Z"
+}
+```
+
+### 待辦事項
+
+#### 🔒 任務列表
+
+> GET /api/tasks
+
+1. 請求參數
+
+| 參數名 | 必填 |
+| ------ | ---- |
+| page   |      |
+
+2. 返回參數
+
+```
+{
+    "data": [
+        {
+            "id": 1,
+            "title": "title",
+            "content": "content",
+            "attachment_url": "attachment_url",
+            "created_at": "2021-07-22 11:42:30",
+            "done_at": null
+        }
+    ],
+    "links": {
+        "first": "http://voicetube.test/api/tasks?page=1",
+        "last": "http://voicetube.test/api/tasks?page=1",
+        "prev": null,
+        "next": null
+    },
+    "meta": {
+        "current_page": 1,
+        "from": 1,
+        "last_page": 1,
+        "links": [
+            {
+                "url": null,
+                "label": "&laquo; Previous",
+                "active": false
+            },
+            {
+                "url": "http://voicetube.test/api/tasks?page=1",
+                "label": "1",
+                "active": true
+            },
+            {
+                "url": null,
+                "label": "Next &raquo;",
+                "active": false
+            }
+        ],
+        "path": "http://voicetube.test/api/tasks",
+        "per_page": 15,
+        "to": 1,
+        "total": 1
+    }
+}
+```
+
+#### 🔒 獲取單一任務
+
+> GET /api/tasks/:id
+
+2. 返回參數
+
+```
+{
+    "data": {
+        "id": 12,
+        "title": "title",
+        "content": "content",
+        "attachment_url": "/storage/files/J7LRQdRjnxzQOXvAul71GzK0VgbZOqyDse7IptX6.txt",
+        "created_at": "2021-07-22 11:42:30",
+        "done_at": null
+    }
+}
+```
+
+#### 🔒 新增任務
+
+> POST /api/tasks
+
+1. 請求參數
+
+| 參數名     | 必填 |
+| ---------- | ---- |
+| title      | V    |
+| content    | V    |
+| attachment |      |
+
+
+2. 返回參數
+
+```
+{
+    "data": {
+        "id": 12,
+        "title": "title",
+        "content": "content",
+        "attachment_url": "/storage/files/J7LRQdRjnxzQOXvAul71GzK0VgbZOqyDse7IptX6.txt",
+        "created_at": "2021-07-22 11:42:30",
+        "done_at": null
+    }
+}
+```
+
+#### 🔒 修改任務
+
+> PUT /api/tasks/:id
+
+1. 請求參數
+
+| 參數名     | 必填 |
+| ---------- | ---- |
+| title      | V    |
+| content    | V    |
+| attachment |      |
+| done_at    |      |
+
+
+2. 返回參數
+
+```
+{
+    "data": {
+        "id": 12,
+        "title": "title",
+        "content": "content",
+        "attachment_url": "/storage/files/J7LRQdRjnxzQOXvAul71GzK0VgbZOqyDse7IptX6.txt",
+        "created_at": "2021-07-22 11:42:30",
+        "done_at": null
+    }
+}
+```
+
+#### 🔒 刪除任務
+
+> DELETE /api/tasks/:id
+
+2. 返回參數
+
+```
+{
+    "code": 200,
+    "message": "success"
+}
+```
+
+#### 🔒 刪除全部任務
+
+> DELETE /api/tasks
+
+2. 返回參數
+
+```
+{
+    "code": 200,
+    "message": "success"
+}
+```
